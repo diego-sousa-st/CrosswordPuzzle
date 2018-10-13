@@ -15,21 +15,14 @@ public class CrosswordSolution {
      */
     private Map<Integer, List<Place>> possiblePlaces;
     private Stack<ActionMade> actionMades;
-    /**
-     * K - amount of words
-     * V - Map with k - words' size and V - list of words with size K
-     */
-    private Map<Integer, Map<Integer, List<String>>> wordsByAmount;
 
     public CrosswordSolution(String[] crossword, String words) {
 
         this.possiblePlaces = new HashMap<>();
         this.actionMades = new Stack<>();
-        this.wordsByAmount = new HashMap<>();
         this.setCrossword(crossword);
         this.setWords(words);
         this.findPossiblePlaces();
-        this.organizeWordsByAmount();
 
     }
 
@@ -52,87 +45,18 @@ public class CrosswordSolution {
 
             for (int col = 0; col < this.SIZE; col++) {
 
-                if ( this.crossword[row][col] == '-' ) {
+                if (this.crossword[row][col] == '-') {
 
                     int posLeft = col - 1;
                     int posRight = col + 1;
                     int posTop = row - 1;
                     int posBottom = row + 1;
-                    int sizeWord = 1;
+                    int sizeWordThread1 = 1;
+                    int sizeWordThread2 = 1;
 
-                    //size 1 case
-
-                    // horizontal case
-                    if( posRight < this.SIZE ) {
-
-                        if( posLeft < 0 || this.crossword[row][posLeft] == '+') {
-
-                            char actualSignal = this.crossword[row][col+sizeWord];
-
-                            while (actualSignal != '+') {
-
-                                sizeWord++;
-
-                                if(col+sizeWord < this.SIZE) {
-
-                                    actualSignal = this.crossword[row][col+sizeWord];
-
-                                } else {
-
-                                    actualSignal = '+';
-
-                                }
-
-                            }
-
-                            if(sizeWord > 1) {
-
-                                Place place = new Place(row, col, Direction.Horizontal);
-
-                                this.putPlaceIntoPossiblePlaces(sizeWord, place);
-
-                            }
-
-                        }
-
-                    }
-
-                    sizeWord = 1;
-
-                    // vertical case
-                    if( posBottom < this.SIZE ) {
-
-                        if( posTop < 0 || this.crossword[posTop][col] == '+') {
-
-                            char actualSignal = this.crossword[row+sizeWord][col];
-
-                            while (actualSignal != '+') {
-
-                                sizeWord++;
-
-                                if(row+sizeWord < this.SIZE) {
-
-                                    actualSignal = this.crossword[row+sizeWord][col];
-
-                                } else {
-
-                                    actualSignal = '+';
-
-                                }
-
-                            }
-
-                            if(sizeWord > 1) {
-
-                                Place place = new Place(row, col, Direction.Vertical);
-
-                                this.putPlaceIntoPossiblePlaces(sizeWord, place);
-
-                            }
-
-                        }
-
-                    }
+                    this.findPossiblePlacesSizeOne(sizeWordThread1, posLeft, posRight, posTop, posBottom, row, col);
+                    this.findPossiblePlacesHorizontal(sizeWordThread1, posLeft, posRight, row, col);
+                    this.findPossiblePlacesVertical(sizeWordThread2, posBottom, posTop, row, col);
 
                 }
 
@@ -142,9 +66,184 @@ public class CrosswordSolution {
 
     }
 
+    private void findPossiblePlacesHorizontal(int sizeWord, int posLeft, int posRight, int row, int col) {
+
+        if (posRight < this.SIZE) {
+
+            if (posLeft < 0 || this.crossword[row][posLeft] == '+') {
+
+                char actualSignal = this.crossword[row][col + sizeWord];
+
+                while (actualSignal != '+') {
+
+                    sizeWord++;
+
+                    if (col + sizeWord < this.SIZE) {
+
+                        actualSignal = this.crossword[row][col + sizeWord];
+
+                    } else {
+
+                        actualSignal = '+';
+
+                    }
+
+                }
+
+                if (sizeWord > 1) {
+
+                    Place place = new Place(row, col, Direction.Horizontal);
+
+                    this.putPlaceIntoPossiblePlaces(sizeWord, place);
+
+                }
+
+            }
+
+        }
+
+    }
+
+    private void findPossiblePlacesVertical(int sizeWord, int posBottom, int posTop, int row, int col) {
+
+        if (posBottom < this.SIZE) {
+
+            if (posTop < 0 || this.crossword[posTop][col] == '+') {
+
+                char actualSignal = this.crossword[row + sizeWord][col];
+
+                while (actualSignal != '+') {
+
+                    sizeWord++;
+
+                    if (row + sizeWord < this.SIZE) {
+
+                        actualSignal = this.crossword[row + sizeWord][col];
+
+                    } else {
+
+                        actualSignal = '+';
+
+                    }
+
+                }
+
+                if (sizeWord > 1) {
+
+                    Place place = new Place(row, col, Direction.Vertical);
+
+                    this.putPlaceIntoPossiblePlaces(sizeWord, place);
+
+                }
+
+            }
+
+        }
+
+    }
+
+    private void findPossiblePlacesSizeOne(int sizeWord, int posLeft, int posRight, int posTop, int posBottom, int row, int col) {
+
+        if (!(posRight < this.SIZE)) {
+
+            if (!(posTop >= 0)) {
+
+                if ((this.crossword[posBottom][col] == '+') && (this.crossword[row][posLeft] == '+')) {
+
+                    this.setPossiblePlaceSizeOne(row, col, sizeWord);
+
+                }
+
+            } else if (!(posBottom < this.SIZE)) {
+
+                if ((this.crossword[posTop][col] == '+') && (this.crossword[row][posLeft] == '+')) {
+
+                    this.setPossiblePlaceSizeOne(row, col, sizeWord);
+
+                }
+
+            } else {
+
+                if ((this.crossword[posBottom][col] == '+') && (this.crossword[row][posLeft] == '+') &&
+                        (this.crossword[posTop][col] == '+')) {
+
+                    this.setPossiblePlaceSizeOne(row, col, sizeWord);
+
+                }
+
+            }
+
+        } else if (!(posTop >= 0)) {
+
+            if (!(posLeft >= 0)) {
+
+                if ((this.crossword[posBottom][col] == '+') && (this.crossword[row][posRight] == '+')) {
+
+                    this.setPossiblePlaceSizeOne(row, col, sizeWord);
+
+                }
+
+            } else {
+
+                if ((this.crossword[posBottom][col] == '+') && (this.crossword[row][posRight] == '+') &&
+                        (this.crossword[row][posLeft] == '+')) {
+
+                    this.setPossiblePlaceSizeOne(row, col, sizeWord);
+
+                }
+
+            }
+
+        } else if (!(posLeft >= 0)) {
+
+            if (!(posBottom < this.SIZE)) {
+
+                if ((this.crossword[posTop][col] == '+') && (this.crossword[row][posRight] == '+')) {
+
+                    this.setPossiblePlaceSizeOne(row, col, sizeWord);
+
+                }
+
+            } else {
+
+                if ((this.crossword[posTop][col] == '+') && (this.crossword[row][posRight] == '+') &&
+                        (this.crossword[posBottom][col] == '+')) {
+
+                    this.setPossiblePlaceSizeOne(row, col, sizeWord);
+
+                }
+
+            }
+
+        } else if (!(posBottom < this.SIZE)) {
+
+            if ((this.crossword[posTop][col] == '+') && (this.crossword[row][posRight] == '+') &&
+                    (this.crossword[row][posLeft] == '+')) {
+
+                this.setPossiblePlaceSizeOne(row, col, sizeWord);
+
+            }
+
+        } else if ((this.crossword[posBottom][col] == '+') && (this.crossword[posTop][col] == '+') &&
+                (this.crossword[row][posRight] == '+') && (this.crossword[row][posLeft] == '+')) {
+
+            this.setPossiblePlaceSizeOne(row, col, sizeWord);
+
+        }
+
+    }
+
+    private void setPossiblePlaceSizeOne(int row, int col, int sizeWord) {
+
+        // Direction here doesn't matter
+        Place place = new Place(row, col, Direction.Horizontal);
+        this.putPlaceIntoPossiblePlaces(sizeWord, place);
+
+    }
+
     private void putPlaceIntoPossiblePlaces(int sizeWord, Place place) {
 
-        if(!this.possiblePlaces.containsKey(sizeWord)) {
+        if (!this.possiblePlaces.containsKey(sizeWord)) {
 
             this.possiblePlaces.put(sizeWord, new ArrayList<>());
 
@@ -155,45 +254,7 @@ public class CrosswordSolution {
 
     }
 
-    private void organizeWordsByAmount() {
-
-        Map<Integer, List<String>> wordsByLength = new HashMap<>();
-
-        for (String word : this.words) {
-
-            int sizeWord = word.length();
-
-            if(!wordsByLength.containsKey(sizeWord)) {
-
-                wordsByLength.put(sizeWord, new ArrayList<>());
-
-            }
-
-            List<String> words = wordsByLength.get(sizeWord);
-            words.add(word);
-
-        }
-
-        wordsByLength.forEach((sizeWord, list) -> {
-
-            if(!this.wordsByAmount.containsKey(list.size())) {
-
-                this.wordsByAmount.put(list.size(), new HashMap<>());
-
-            }
-
-            Map<Integer, List<String>> map = this.wordsByAmount.get(list.size());
-            map.put(sizeWord, list);
-
-        });
-
-    }
-
     public String[] solve() {
-
-        List<Integer> keys = new ArrayList<>(this.wordsByAmount.size());
-        keys.addAll(this.wordsByAmount.keySet());
-        Collections.sort(keys);
 
         this.solveResursively();
 
@@ -203,9 +264,10 @@ public class CrosswordSolution {
 
     private boolean solveResursively() {
 
-        if(this.words.size() == 0) {
+        if (this.words.size() == 0) {
 
             this.generateResult();
+
             return true;
 
         }
@@ -213,19 +275,19 @@ public class CrosswordSolution {
         String word = this.words.remove(0);
         List<Place> places = possiblePlaces.get(word.length());
 
-        for(Place place : places) {
+        for (Place place : places) {
 
-            if(place.isAvailable()) {
+            if (place.isAvailable()) {
 
                 place.setAvailable(false);
-                boolean sucessAction = this.makeAction(place, word, null);
-                if(sucessAction) {
+                boolean sucessAction = this.makeAction(place, word);
+                if (sucessAction) {
 
                     boolean solved = this.solveResursively();
 
-                    if(solved) {
+                    if (solved) {
 
-                      return true;
+                        return true;
 
                     } else {
 
@@ -254,7 +316,7 @@ public class CrosswordSolution {
 
         this.crosswordCompleted = new String[this.SIZE];
 
-        for (int row = 0; row < this.SIZE; row ++) {
+        for (int row = 0; row < this.SIZE; row++) {
 
             StringBuilder line = new StringBuilder();
 
@@ -274,13 +336,13 @@ public class CrosswordSolution {
 
         char[] charsWord = word.toCharArray();
 
-        if(place.getDirection().equals(Direction.Vertical)) {
+        if (place.getDirection().equals(Direction.Vertical)) {
 
             for (int i = 0; i < charsWord.length; i++) {
 
-                if(this.crossword[place.getRow()+i][place.getCol()] == '-' || this.crossword[place.getRow()+i][place.getCol()] == charsWord[i]) {
+                if (this.crossword[place.getRow() + i][place.getCol()] == '-' || this.crossword[place.getRow() + i][place.getCol()] == charsWord[i]) {
 
-                    this.crossword[place.getRow()+i][place.getCol()] = charsWord[i];
+                    this.crossword[place.getRow() + i][place.getCol()] = charsWord[i];
 
                 } else {
 
@@ -294,9 +356,9 @@ public class CrosswordSolution {
 
             for (int i = 0; i < charsWord.length; i++) {
 
-                if(this.crossword[place.getRow()][place.getCol()+i] == '-' || this.crossword[place.getRow()][place.getCol()+i] == charsWord[i]) {
+                if (this.crossword[place.getRow()][place.getCol() + i] == '-' || this.crossword[place.getRow()][place.getCol() + i] == charsWord[i]) {
 
-                    this.crossword[place.getRow()][place.getCol()+i] = charsWord[i];
+                    this.crossword[place.getRow()][place.getCol() + i] = charsWord[i];
 
                 } else {
 
@@ -312,23 +374,23 @@ public class CrosswordSolution {
 
     }
 
-    private boolean makeAction(Place place, String word, List<String> listUsed) {
+    private boolean makeAction(Place place, String word) {
 
-        this.makeActionBackup(place, word, listUsed);
+        this.makeActionBackup(place, word);
+
         return this.writeWord(place, word);
 
     }
 
-    private void makeActionBackup(Place place, String word, List<String> listUsed) {
+    private void makeActionBackup(Place place, String word) {
 
         char[] charsCrosswordPlace = new char[word.length()];
 
-
-        if(place.getDirection().equals(Direction.Vertical)) {
+        if (place.getDirection().equals(Direction.Vertical)) {
 
             for (int i = 0; i < word.length(); i++) {
 
-                charsCrosswordPlace[i] = this.crossword[place.getRow()+i][place.getCol()];
+                charsCrosswordPlace[i] = this.crossword[place.getRow() + i][place.getCol()];
 
             }
 
@@ -336,19 +398,18 @@ public class CrosswordSolution {
 
             for (int i = 0; i < word.length(); i++) {
 
-                charsCrosswordPlace[i] = this.crossword[place.getRow()][place.getCol()+i];
+                charsCrosswordPlace[i] = this.crossword[place.getRow()][place.getCol() + i];
 
             }
 
         }
 
-        ActionMade actionMade = new ActionMade(place, listUsed, word, charsCrosswordPlace);
+        ActionMade actionMade = new ActionMade(place, charsCrosswordPlace);
         this.actionMades.push(actionMade);
 
     }
 
     private void restoreAction() {
-
 
         ActionMade actionMade = this.actionMades.pop();
 
@@ -356,11 +417,11 @@ public class CrosswordSolution {
 
         char[] charsCrosswordReplaced = actionMade.getLastWord();
 
-        if(place.getDirection().equals(Direction.Vertical)) {
+        if (place.getDirection().equals(Direction.Vertical)) {
 
             for (int i = 0; i < charsCrosswordReplaced.length; i++) {
 
-                this.crossword[place.getRow()+i][place.getCol()] = charsCrosswordReplaced[i];
+                this.crossword[place.getRow() + i][place.getCol()] = charsCrosswordReplaced[i];
 
             }
 
@@ -368,14 +429,11 @@ public class CrosswordSolution {
 
             for (int i = 0; i < charsCrosswordReplaced.length; i++) {
 
-                this.crossword[place.getRow()][place.getCol()+i] = charsCrosswordReplaced[i];
+                this.crossword[place.getRow()][place.getCol() + i] = charsCrosswordReplaced[i];
 
             }
 
         }
-
-        // List<Place> places = this.possiblePlaces.get(charsCrosswordReplaced.length);
-        // places.add(place);
 
     }
 
