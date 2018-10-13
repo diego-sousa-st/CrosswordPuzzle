@@ -54,12 +54,11 @@ public class CrosswordSolution {
                     int posRight = col + 1;
                     int posTop = row - 1;
                     int posBottom = row + 1;
-                    int sizeWordThread1 = 1;
-                    int sizeWordThread2 = 1;
+                    int sizeWord = 1;
 
-                    this.findPossiblePlacesSizeOne(sizeWordThread1, posLeft, posRight, posTop, posBottom, row, col);
-                    this.findPossiblePlacesHorizontal(sizeWordThread1, posLeft, posRight, row, col);
-                    this.findPossiblePlacesVertical(sizeWordThread2, posBottom, posTop, row, col);
+                    this.findPossiblePlacesSizeOne(sizeWord, posLeft, posRight, posTop, posBottom, row, col);
+                    this.findPossiblePlacesHorizontal(sizeWord, posLeft, posRight, row, col);
+                    this.findPossiblePlacesVertical(sizeWord, posBottom, posTop, row, col);
 
                 }
 
