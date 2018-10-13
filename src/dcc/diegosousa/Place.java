@@ -1,5 +1,8 @@
 package dcc.diegosousa;
 
+/**
+ * @author diego
+ */
 public class Place {
 
     private Integer row;

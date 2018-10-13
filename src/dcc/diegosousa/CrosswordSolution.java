@@ -2,6 +2,9 @@ package dcc.diegosousa;
 
 import java.util.*;
 
+/**
+ * @author diego
+ */
 public class CrosswordSolution {
 
     private int SIZE;
@@ -256,13 +259,13 @@ public class CrosswordSolution {
 
     public String[] solve() {
 
-        this.solveResursively();
+        this.solveRecursively();
 
         return this.crosswordCompleted;
 
     }
 
-    private boolean solveResursively() {
+    private boolean solveRecursively() {
 
         if (this.words.size() == 0) {
 
@@ -283,7 +286,7 @@ public class CrosswordSolution {
                 boolean sucessAction = this.makeAction(place, word);
                 if (sucessAction) {
 
-                    boolean solved = this.solveResursively();
+                    boolean solved = this.solveRecursively();
 
                     if (solved) {
 

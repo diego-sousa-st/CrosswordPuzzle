@@ -1,5 +1,8 @@
 package dcc.diegosousa;
 
+/**
+ * @author diego
+ */
 public class ActionMade {
 
     private Place placeUsed;
