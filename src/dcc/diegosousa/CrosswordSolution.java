@@ -159,9 +159,8 @@ public class CrosswordSolution {
 
         Map<Integer, List<String>> wordsByLength = new HashMap<>();
 
-        for ( int i = 0; i < this.words.size(); i++) {
+        for (String word : this.words) {
 
-            String word = this.words[i];
             int sizeWord = word.length();
 
             if(!wordsByLength.containsKey(sizeWord)) {
@@ -202,32 +201,72 @@ public class CrosswordSolution {
 
     }
 
-    private void solveResursively() {
+    private boolean solveResursively() {
 
-        if(this.words.length == 0) {
+        if(this.words.size() == 0) {
 
             this.generateResult();
-            return;
+            return true;
 
         }
 
-        String word = this.words[0];
+        String word = this.words.remove(0);
+        List<Place> places = possiblePlaces.get(word.length());
 
-        for(Place place : possiblePlaces.get(word.length())) {
+        for(Place place : places) {
 
-            this.writeWord(place, word);
-            this.solveResursively();
-            this.restoreAction();
+            if(place.isAvailable()) {
+
+                place.setAvailable(false);
+                boolean sucessAction = this.makeAction(place, word, null);
+                if(sucessAction) {
+
+                    boolean solved = this.solveResursively();
+
+                    if(solved) {
+
+                      return true;
+
+                    } else {
+
+                        this.restoreAction();
+                        place.setAvailable(true);
+
+                    }
+
+                } else {
+
+                    this.restoreAction();
+                    place.setAvailable(true);
+
+                }
+
+            }
 
         }
 
-        this.words[position] = word;
+        this.words.add(word);
+        return false;
 
     }
 
     private void generateResult() {
 
-        // TODO gerar matriz com os resultados
+        this.crosswordCompleted = new String[this.SIZE];
+
+        for (int row = 0; row < this.SIZE; row ++) {
+
+            StringBuilder line = new StringBuilder();
+
+            for (int col = 0; col < this.SIZE; col++) {
+
+                line.append(this.crossword[row][col]).append(" ");
+
+            }
+
+            this.crosswordCompleted[row] = line.toString();
+
+        }
 
     }
 
@@ -310,11 +349,42 @@ public class CrosswordSolution {
 
     private void restoreAction() {
 
+
+        ActionMade actionMade = this.actionMades.pop();
+
+        Place place = actionMade.getPlaceUsed();
+
+        char[] charsCrosswordReplaced = actionMade.getLastWord();
+
+        if(place.getDirection().equals(Direction.Vertical)) {
+
+            for (int i = 0; i < charsCrosswordReplaced.length; i++) {
+
+                this.crossword[place.getRow()+i][place.getCol()] = charsCrosswordReplaced[i];
+
+            }
+
+        } else if (place.getDirection().equals(Direction.Horizontal)) {
+
+            for (int i = 0; i < charsCrosswordReplaced.length; i++) {
+
+                this.crossword[place.getRow()][place.getCol()+i] = charsCrosswordReplaced[i];
+
+            }
+
+        }
+
+        // List<Place> places = this.possiblePlaces.get(charsCrosswordReplaced.length);
+        // places.add(place);
+
     }
 
     private void setWords(String words) {
 
-        this.words = words.split(";");
+        String[] aux = words.split(";");
+        this.words = new ArrayList<>();
+
+        Collections.addAll(this.words, aux);
 
     }
 
